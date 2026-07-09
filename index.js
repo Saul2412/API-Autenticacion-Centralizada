@@ -11,6 +11,14 @@ const PORT = process.env.PORT || 5100;
 // Middleware
 app.use(express.json());
 
+// Ruta principal
+app.get("/", (req, res) => {
+  res.json({
+    mensaje: "API Autenticacion Centralizada funcionando",
+    estado: "OK"
+  });
+});
+
 // Rutas
 app.use("/api/auth", authRoutes);
 
