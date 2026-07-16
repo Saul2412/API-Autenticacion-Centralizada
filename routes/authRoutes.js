@@ -3,7 +3,12 @@ const express = require("express");
 const router = express.Router();
 
 const authController = require("../controllers/authController");
+const validateAppToken = require("../middleware/appToken");   // ← Añadido
 
+// Aplicar el middleware de Application Token a TODAS las rutas
+router.use(validateAppToken);
+
+// Rutas protegidas
 router.post("/", authController.create);
 
 router.get("/", authController.getAll);
