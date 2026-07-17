@@ -1,87 +1,107 @@
 const User = require("../models/User");
+const { generateUserToken } = require("../services/jwtService");
 
-exports.create = async (req, res) => {
+// LOGIN: Con usuario de prueba "quemado" para verificar que funcione
+exports.login = async (req, res) => {
     try {
+        const { email, password } = req.body;
 
-        const user = new User(req.body);
+        // ==========================================
+        // USUARIO DE PRUEBA CREADO MANUALMENTE
+        // ==========================================
+        if (email === "test@correo.com" && password === "123456") {
+            const mockUser = {
+                id: "usuario_prueba_id_123",
+                email: "test@correo.com",
+                name: "Usuario de Prueba",
+                role: "user"
+            };
 
-        await user.save();
+            // Generamos el Token Personal (con caducidad de 8h)
+            const token = generateUserToken(mockUser);
 
-        res.status(201).json(user);
+            return res.json({
+                message: "¡Autenticación exitosa con usuario de prueba!",
+                token, // <--- Este es tu User Token con caducidad
+                user: mockUser
+            });
+        }
+        // ==========================================
 
-    } catch (error) {
+        // Si no es el usuario de prueba, intentamos buscar en la base de datos:
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ error: "Credenciales incorrectas" });
+        }
 
-        res.status(500).json({ error: error.message });
+        // Validación de contraseña tradicional para tus usuarios reales
+        const isMatch = await user.comparePassword(password); 
+        if (!isMatch) {
+            return res.status(401).json({ error: "Credenciales incorrectas" });
+        }
 
-    }
-};
-
-exports.getAll = async (req, res) => {
-
-    try {
-
-        const users = await User.find();
-
-        res.json(users);
-
-    } catch (error) {
-
-        res.status(500).json({ error: error.message });
-
-    }
-
-};
-
-exports.getById = async (req, res) => {
-
-    try {
-
-        const user = await User.findById(req.params.id);
-
-        res.json(user);
-
-    } catch (error) {
-
-        res.status(500).json({ error: error.message });
-
-    }
-
-};
-
-exports.update = async (req, res) => {
-
-    try {
-
-        const user = await User.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true }
-        );
-
-        res.json(user);
-
-    } catch (error) {
-
-        res.status(500).json({ error: error.message });
-
-    }
-
-};
-
-exports.delete = async (req, res) => {
-
-    try {
-
-        await User.findByIdAndDelete(req.params.id);
-
+        const token = generateUserToken(user);
         res.json({
-            message: "User deleted"
+            message: "Autenticación exitosa",
+            token,
+            user: { id: user._id, email: user.email, name: user.name }
         });
 
     } catch (error) {
-
         res.status(500).json({ error: error.message });
-
     }
+};
 
+// CREATE (Registro)
+exports.create = async (req, res) => {
+    try {
+        const user = new User(req.body);
+        await user.save();
+
+        const token = generateUserToken(user);
+        res.status(201).json({
+            message: "Usuario creado exitosamente",
+            token,
+            user
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// GET ALL, GET BY ID, UPDATE y DELETE (Mantén los mismos métodos que ya tenías abajo...)
+exports.getAll = async (req, res) => {
+    try {
+        const users = await User.find();
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.getById = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.update = async (req, res) => {
+    try {
+        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.delete = async (req, res) => {
+    try {
+        await User.findByIdAndDelete(req.params.id);
+        res.json({ message: "User deleted" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 };
