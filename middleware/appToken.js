@@ -1,15 +1,14 @@
-// middleware/appToken.js
-const jwt = require('jsonwebtoken');
+import jwt from "jsonwebtoken";
 
-const APP_TOKEN_SECRET = process.env.APP_TOKEN_SECRET || 'mi_app_token_secreto_muy_seguro_2026';
+const APP_TOKEN_SECRET = process.env.APP_TOKEN_SECRET || "mi_app_token_secreto_muy_seguro_2026";
 
 const validateAppToken = (req, res, next) => {
-    const appToken = req.headers['app-token'];
+    const appToken = req.headers["app-token"];
 
     if (!appToken) {
         return res.status(401).json({
             error: true,
-            message: 'Falta el application token (app-token)'
+            message: "Falta el application token (app-token)"
         });
     }
 
@@ -20,9 +19,9 @@ const validateAppToken = (req, res, next) => {
     } catch (err) {
         return res.status(401).json({
             error: true,
-            message: 'Application token inválido o expirado'
+            message: "Application token inválido o expirado"
         });
     }
 };
 
-module.exports = validateAppToken;
+export default validateAppToken;

@@ -1,10 +1,10 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 const JWT_USER_SECRET = process.env.JWT_USER_SECRET || 'mi_secreto_usuarios';
 const JWT_APP_SECRET = process.env.JWT_APP_SECRET || 'mi_secreto_aplicaciones';
 
 // 1. TOKEN PERSONAL (CON CADUCIDAD - Ej. 8 horas)
-const generateUserToken = (user) => {
+export const generateUserToken = (user) => {
   return jwt.sign(
     { 
       id: user._id || user.id, 
@@ -17,7 +17,7 @@ const generateUserToken = (user) => {
 };
 
 // 2. TOKEN DE APP (SIN CADUCIDAD)
-const generateAppToken = (appId, appName) => {
+export const generateAppToken = (appId, appName) => {
   return jwt.sign(
     { 
       appId: appId, 
@@ -29,7 +29,7 @@ const generateAppToken = (appId, appName) => {
   );
 };
 
-module.exports = {
+export default {
   generateUserToken,
   generateAppToken
 };

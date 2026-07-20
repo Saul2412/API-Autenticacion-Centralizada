@@ -1,8 +1,10 @@
-const User = require("../models/User");
-const { generateUserToken } = require("../services/jwtService");
+import User from "../models/User.js";
+import { generateUserToken } from "../services/jwtService.js";
+
+// 1. Definicíon de funciones del controlador
 
 // LOGIN: Con usuario de prueba "quemado" para verificar que funcione
-exports.login = async (req, res) => {
+const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -53,7 +55,7 @@ exports.login = async (req, res) => {
 };
 
 // CREATE (Registro)
-exports.create = async (req, res) => {
+const create = async (req, res) => {
     try {
         const user = new User(req.body);
         await user.save();
@@ -69,8 +71,8 @@ exports.create = async (req, res) => {
     }
 };
 
-// GET ALL, GET BY ID, UPDATE y DELETE (Mantén los mismos métodos que ya tenías abajo...)
-exports.getAll = async (req, res) => {
+// GET ALL
+const getAll = async (req, res) => {
     try {
         const users = await User.find();
         res.json(users);
@@ -79,7 +81,8 @@ exports.getAll = async (req, res) => {
     }
 };
 
-exports.getById = async (req, res) => {
+// GET BY ID
+const getById = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
         res.json(user);
@@ -88,7 +91,8 @@ exports.getById = async (req, res) => {
     }
 };
 
-exports.update = async (req, res) => {
+// UPDATE
+const update = async (req, res) => {
     try {
         const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
         res.json(user);
@@ -97,11 +101,22 @@ exports.update = async (req, res) => {
     }
 };
 
-exports.delete = async (req, res) => {
+// DELETE
+const deleteUser = async (req, res) => {
     try {
         await User.findByIdAndDelete(req.params.id);
         res.json({ message: "User deleted" });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+};
+
+// 2. Exportación del objeto por defecto
+export default {
+    login,
+    create,
+    getAll,
+    getById,
+    update,
+    delete: deleteUser
 };
