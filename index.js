@@ -1,23 +1,17 @@
-<<<<<<< HEAD
-const express = require("express");
+import dotenv from "dotenv";
+dotenv.config();
 
-const app = express();
-const PORT = 5100;
+import express from "express";
+import mongoose from "mongoose";
+import helmet from "helmet"; // 👈 Helmet cargado con sintaxis de ES Modules
 
-console.log("Hello World");
-
-=======
-require("dotenv").config();
-
-const express = require("express");
-const mongoose = require("mongoose");
-
-const authRoutes = require("./routes/authRoutes");
+import authRoutes from "./routes/authRoutes.js"; // 👈 Nota: Es indispensable incluir la extensión .js
 
 const app = express();
 const PORT = process.env.PORT || 5100;
 
-// Middleware
+// Middlewares
+app.use(helmet()); // 👈 Protección de cabeceras HTTP activada
 app.use(express.json());
 
 // Ruta principal
@@ -44,7 +38,6 @@ async function connectMongoDB() {
 connectMongoDB();
 
 // Iniciar servidor
->>>>>>> feature/app-token
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
