@@ -1,7 +1,5 @@
 import jwt from "jsonwebtoken";
 
-const APP_TOKEN_SECRET = process.env.APP_TOKEN_SECRET || "mi_app_token_secreto_muy_seguro_2026";
-
 const validateAppToken = (req, res, next) => {
     const appToken = req.headers["app-token"];
 
@@ -13,7 +11,8 @@ const validateAppToken = (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(appToken, APP_TOKEN_SECRET);
+        const secret = process.env.APP_TOKEN_SECRET || "mi_app_token_secreto_muy_seguro_2026";
+        const decoded = jwt.verify(appToken, secret);
         req.appToken = decoded;
         next();
     } catch (err) {
@@ -24,4 +23,5 @@ const validateAppToken = (req, res, next) => {
     }
 };
 
+// ⚠️ Asegúrate de que esta línea esté presente:
 export default validateAppToken;

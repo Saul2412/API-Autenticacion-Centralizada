@@ -1,42 +1,35 @@
 import User from "../models/User.js";
 import { generateUserToken } from "../services/jwtService.js";
 
-// 1. Definicíon de funciones del controlador
-
-// LOGIN: Con usuario de prueba "quemado" para verificar que funcione
+// LOGIN
 const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { username, password } = req.body;
 
-        // ==========================================
-        // USUARIO DE PRUEBA CREADO MANUALMENTE
-        // ==========================================
-        if (email === "test@correo.com" && password === "123456") {
+        // Usuario de prueba quemado (opcional)
+        if (username === "test@correo.com" && password === "123456") {
             const mockUser = {
                 id: "usuario_prueba_id_123",
-                email: "test@correo.com",
+                username: "test@correo.com",
                 name: "Usuario de Prueba",
                 role: "user"
             };
 
-            // Generamos el Token Personal (con caducidad de 8h)
             const token = generateUserToken(mockUser);
-
             return res.json({
                 message: "¡Autenticación exitosa con usuario de prueba!",
-                token, // <--- Este es tu User Token con caducidad
+                token,
                 user: mockUser
             });
         }
-        // ==========================================
 
-        // Si no es el usuario de prueba, intentamos buscar en la base de datos:
-        const user = await User.findOne({ email });
+        // Buscar usuario real en la base de datos por username
+        const user = await User.findOne({ username });
         if (!user) {
             return res.status(401).json({ error: "Credenciales incorrectas" });
         }
 
-        // Validación de contraseña tradicional para tus usuarios reales
+        // Validación de contraseña usando el método del modelo
         const isMatch = await user.comparePassword(password); 
         if (!isMatch) {
             return res.status(401).json({ error: "Credenciales incorrectas" });
@@ -46,7 +39,7 @@ const login = async (req, res) => {
         res.json({
             message: "Autenticación exitosa",
             token,
-            user: { id: user._id, email: user.email, name: user.name }
+            user: { id: user._id, username: user.username }
         });
 
     } catch (error) {
@@ -111,7 +104,6 @@ const deleteUser = async (req, res) => {
     }
 };
 
-// 2. Exportación del objeto por defecto
 export default {
     login,
     create,
