@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
+import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -17,16 +17,12 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-// Encriptar la contraseña antes de guardarla
-userSchema.pre("save", async function (next) {
-    if (!this.isModified("password")) return next();
-    try {
-        const salt = await bcrypt.genSalt(10);
-        this.password = await bcrypt.hash(this.password, salt);
-        next();
-    } catch (error) {
-        next(error);
-    }
+// Encriptar la contraseña antes de guardarla (Versión async limpia sin 'next')
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
+    
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
 });
 
 // Método para comparar contraseñas

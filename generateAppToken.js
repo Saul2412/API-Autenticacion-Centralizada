@@ -1,21 +1,20 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
-const generateAppToken = () => {
-    const payload = {
-        app: "autenticacion-centralizada",
-        role: "application",
-        generatedAt: new Date().toISOString(),
-        note: "Token sin expiracion"
-    };
+dotenv.config();
 
-    // Toma la clave desencriptada del .env o usa el fallback
-    const secret = process.env.APP_TOKEN_SECRET || "mi_app_token_secreto_muy_seguro_2026";
+// Lee el secreto de tu .env (o usa un valor por defecto si no lo encuentra)
+const secret = process.env.APP_TOKEN_SECRET || process.env.JWT_SECRET || "secreto_por_defecto";
 
-    const token = jwt.sign(payload, secret);
-
-    console.log("\n✅ Application Token SIN EXPIRACIÓN Generado:\n");
-    console.log(token);
-    console.log("\nEste token NO tiene fecha de caducidad.\n");
+// Payload del token de aplicación
+const payload = {
+  appName: "Auth API Local",
+  role: "application"
 };
 
-generateAppToken();
+// Genera el token con validez de 1 año (para que no te caduque mientras haces pruebas)
+const appToken = jwt.sign(payload, secret, { expiresIn: '365d' });
+
+console.log("\n=================== TU APP TOKEN ===================");
+console.log(appToken);
+console.log("====================================================\n");
